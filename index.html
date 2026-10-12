@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delaunay Wallpaper Generator - Low Poly Art</title>
+  <meta name="description" content="Random Delaunay triangulation wallpaper and geometric art generator. Right-click to copy or save image.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Viewport da Arte -->
+  <main class="canvas-container" id="container">
+    <!-- Imagem direta para permitir Clique com Botão Direito -> Copiar Imagem nativo em qualquer navegador -->
+    <img id="wallpaper-img" alt="Delaunay Wallpaper" draggable="false">
+    <canvas id="render-canvas"></canvas>
+  </main>
+
+  <!-- Dica flutuante de atalho / botão direito -->
+  <div class="hint-toast" id="hint-toast">
+    <span id="hint-text">💡 <strong>Right-click</strong> the image to copy or press <kbd>Space</kbd></span>
+  </div>
+
+  <!-- Toast de notificação de cópia -->
+  <div class="feedback-toast" id="feedback-toast">
+    <span class="icon">✓</span>
+    <span id="toast-text">Image copied to clipboard!</span>
+  </div>
+
+  <!-- Barra de Ferramentas Flutuante (Glassmorphism) -->
+  <header class="ui-panel" id="ui-panel">
+    <div class="panel-header">
+      <div class="branding">
+        <div class="logo-gem"></div>
+        <div class="title-wrap">
+          <h1 data-i18n="appTitle">Delaunay Wallpaper</h1>
+          <span class="badge" id="palette-badge">Neon Glow</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- Seletor de Idioma (Toggle EN-US / PT-BR) -->
+        <button id="btn-lang" class="lang-btn" title="Alterar Idioma / Switch Language" aria-label="Switch Language">
+          <span class="flag-icon" id="lang-flag">🇺🇸</span>
+          <span class="lang-code" id="lang-code">EN</span>
+        </button>
+
+        <button id="btn-toggle-panel" class="icon-btn" title="Hide Panel [H]" aria-label="Hide Panel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botão Principal de Ação -->
+    <div class="primary-action-wrap">
+      <button id="btn-random" class="btn-primary" title="Shortcut: Spacebar">
+        <svg class="dice-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3" ry="3"></rect>
+          <circle cx="8" cy="8" r="1.5" fill="currentColor"></circle>
+          <circle cx="16" cy="8" r="1.5" fill="currentColor"></circle>
+          <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+          <circle cx="8" cy="16" r="1.5" fill="currentColor"></circle>
+          <circle cx="16" cy="16" r="1.5" fill="currentColor"></circle>
+        </svg>
+        <span class="btn-text" data-i18n="btnRandom">Generate Random</span>
+        <span class="kbd-pill" id="kbd-space">Space</span>
+      </button>
+    </div>
+
+    <!-- Ações Rápidas de Exportação -->
+    <div class="quick-export-actions">
+      <button id="btn-copy" class="btn-secondary" title="Copy Image to Clipboard [C]">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span data-i18n="btnCopy">Copy Image</span>
+      </button>
+      <button id="btn-download" class="btn-secondary" title="Download PNG [S]">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span data-i18n="btnDownload">Download PNG</span>
+      </button>
+    </div>
+
+    <!-- Configurações Opcionais (Accordions / Controles) -->
+    <details class="advanced-controls" id="controls-accordion">
+      <summary>
+        <span data-i18n="customizeSummary">Customize Settings</span>
+        <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </summary>
+
+      <div class="controls-body">
+        <!-- Resolução -->
+        <div class="control-row">
+          <label for="select-resolution" data-i18n="labelResolution">Resolution</label>
+          <select id="select-resolution">
+            <option value="screen" selected data-i18n="resScreen">Current Screen (Auto)</option>
+            <option value="1920x1080">1080p Full HD (1920x1080)</option>
+            <option value="2560x1440">2K QHD (2560x1440)</option>
+            <option value="3840x2160">4K Ultra HD (3840x2160)</option>
+            <option value="1080x1920" data-i18n="resMobile">Mobile / Story (1080x1920)</option>
+            <option value="1440x1440" data-i18n="resSquare">Square (1440x1440)</option>
+          </select>
+        </div>
+
+        <!-- Paleta de Cores -->
+        <div class="control-row">
+          <label for="select-palette" data-i18n="labelPalette">Color Style</label>
+          <select id="select-palette">
+            <option value="random" selected data-i18n="optPaletteRandom">🎲 Always Random</option>
+            <option value="sunset">🌅 Sunset Boulevard</option>
+            <option value="cyberpunk">🌌 Cyberpunk Neon</option>
+            <option value="nordic">❄️ Nordic Glacier</option>
+            <option value="emerald">🌿 Rainforest Emerald</option>
+            <option value="peach">🍑 Peach & Cream</option>
+            <option value="volcanic">🌋 Volcanic Magma</option>
+            <option value="deepcosmos">🪐 Deep Cosmos</option>
+            <option value="cherry">🌸 Tokyo Blossom</option>
+            <option value="obsidian">🌑 Dark Obsidian</option>
+            <option value="amethyst">🔮 Royal Amethyst</option>
+            <option value="ocean">🌊 Deep Ocean Trench</option>
+            <option value="prism">🌈 Prism Rainbow</option>
+            <option value="mojave">🏜️ Mojave Sand</option>
+            <option value="aurora">✨ Aurora Borealis</option>
+          </select>
+        </div>
+
+        <!-- Densidade de Triângulos -->
+        <div class="control-row">
+          <div class="label-with-val">
+            <label for="range-density" data-i18n="labelDensity">Triangle Size</label>
+            <span id="density-val" class="val-tag">Medium</span>
+          </div>
+          <input type="range" id="range-density" min="40" max="180" value="95" step="5">
+        </div>
+
+        <!-- Variação / Caos -->
+        <div class="control-row">
+          <div class="label-with-val">
+            <label for="range-jitter" data-i18n="labelJitter">Geometric Chaos</label>
+            <span id="jitter-val" class="val-tag">Organic</span>
+          </div>
+          <input type="range" id="range-jitter" min="20" max="100" value="75" step="5">
+        </div>
+
+        <!-- Iluminação 3D -->
+        <div class="control-row">
+          <div class="label-with-val">
+            <label for="range-shading" data-i18n="labelShading">3D Effect / Relief</label>
+            <span id="shading-val" class="val-tag">Medium</span>
+          </div>
+          <input type="range" id="range-shading" min="0" max="100" value="55" step="5">
+        </div>
+
+        <!-- Bordas das Linhas -->
+        <div class="control-row checkbox-row">
+          <label for="check-strokes" data-i18n="labelStrokes">Highlight Triangle Borders</label>
+          <input type="checkbox" id="check-strokes">
+        </div>
+      </div>
+    </details>
+  </header>
+
+  <!-- Botão flutuante para reexibir a interface quando oculta -->
+  <button id="btn-show-panel" class="floating-show-btn hidden" title="Show Controls [H]" aria-label="Show Controls">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    <span data-i18n="btnShowControls">Controls</span>
+  </button>
+
+  <script src="delaunator.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
