@@ -6,28 +6,6 @@ Feito em **HTML5, CSS3 e JavaScript puro**, pronto para rodar diretamente no **G
 
 ---
 
-## 🚀 Como hospedar no GitHub Pages (Passo a Passo)
-
-1. Crie um novo repositório no seu GitHub (exemplo: `delaunay-wallpaper` ou `delunay`).
-2. Envie todos os arquivos deste projeto para a branch principal (`main`):
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-   git push -u origin main
-   ```
-3. No seu repositório no GitHub:
-   - Vá em **Settings** > **Pages** (no menu lateral esquerdo).
-   - Em **Build and deployment** > **Source**, selecione **Deploy from a branch**.
-   - Em **Branch**, selecione `main` e a pasta `/(root)`.
-   - Clique em **Save**.
-4. Pronto! Em menos de 1 minuto seu site estará online em:
-   `https://SEU-USUARIO.github.io/SEU-REPOSITORIO/`
-
----
-
 ## ✨ Funcionalidades
 
 - **🎲 Botão Random**: Gera um novo padrão com cores, iluminação 3D e geometria únicas a cada clique.
