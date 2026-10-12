@@ -6,7 +6,7 @@ Feito em **HTML5, CSS3 e JavaScript puro**, pronto para rodar diretamente no **G
 
 ---
 
-## ✨ Funcionalidades
+✨ Funcionalidades
 
 - **🎲 Botão Random**: Gera um novo padrão com cores, iluminação 3D e geometria únicas a cada clique.
 - **🖱️ Copiar Imagem com o Botão Direito**: Como a arte é exportada diretamente em uma tag `<img>`, você pode clicar com o **botão direito em qualquer lugar da tela e selecionar "Copiar imagem"** ou "Salvar imagem como...".
